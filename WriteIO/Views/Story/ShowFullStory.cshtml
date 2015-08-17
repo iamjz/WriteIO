@@ -1,0 +1,27 @@
+﻿@model  IEnumerable<WriteIO.Models.CommittedStory>
+
+@{
+    ViewBag.Title = "ShowFullStory";
+}
+
+<h2>ShowFullStory</h2>
+
+@section body
+{
+    @foreach (var fs in Model)
+    {
+        <p><b>@fs.SectionContent</b></p>
+        <li>
+            <ul>By @fs.Author on @fs.WrittenDate (Upvotes: @fs.Upvotes | Downvotes: @fs.Downvotes)</ul>
+        </li>
+    }
+
+    <br />
+    <br />
+
+    @Html.Action("GetCurrentSections", "Section", Session["StoryID"])
+
+    <br />
+    <br />
+    @Html.Action("WriteSection", "Section", Session["StoryID"])
+}

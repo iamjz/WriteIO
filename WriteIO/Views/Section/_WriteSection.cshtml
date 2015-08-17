@@ -1,0 +1,32 @@
+﻿@model WriteIO.Models.SectionsVM
+
+@using (Ajax.BeginForm("WriteSection", "Section", new AjaxOptions
+{
+    HttpMethod = "POST",
+    UpdateTargetId = "sectioninfo",
+    OnSuccess = "alert('Yatta!')",
+    OnFailure = "alert('No Bueno!')"
+}))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>SectionsVM</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.SectionContent, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.SectionContent, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.SectionContent, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Post Section" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
