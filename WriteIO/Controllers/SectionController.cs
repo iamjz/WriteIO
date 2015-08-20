@@ -15,34 +15,41 @@ namespace WriteIO.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult WriteSection(SectionsVM submission)
         {
-            if (ModelState.IsValid
-                && Session["StoryID"].ToString() != null
-                && Session["CurrentSeq"].ToString() != null)
+            if (!User.Identity.IsAuthenticated)
             {
-                var StoryID = Session["StoryID"];
-                int formattedID = 0;
-                bool isIdNumeric = int.TryParse(StoryID.ToString(), out formattedID);
-
-                //check seq number
-                var SeqNumber = Session["CurrentSeq"];
-                int formattedSeqNumber = 0;
-                bool isSeqNumNumeric = int.TryParse(SeqNumber.ToString(), out formattedSeqNumber);
-
-                if (isIdNumeric && isSeqNumNumeric)
+                return View();
+            }
+            else
+            {
+                if (ModelState.IsValid
+                    && Session["StoryID"].ToString() != null
+                    && Session["CurrentSeq"].ToString() != null)
                 {
-                    submission.StoryID = (int)StoryID;
-                    submission.SequenceNumber = (int)SeqNumber;
-                    Helpers.SectionHelper.InsertSection(submission);
+                    var StoryID = Session["StoryID"];
+                    int formattedID = 0;
+                    bool isIdNumeric = int.TryParse(StoryID.ToString(), out formattedID);
 
-                    IEnumerable<SectionsVM> s = Helpers.SectionHelper.ShowCurrentSections(submission.StoryID);
-                    return PartialView("_CurrentSections", s);
+                    //check seq number
+                    var SeqNumber = Session["CurrentSeq"];
+                    int formattedSeqNumber = 0;
+                    bool isSeqNumNumeric = int.TryParse(SeqNumber.ToString(), out formattedSeqNumber);
+
+                    if (isIdNumeric && isSeqNumNumeric)
+                    {
+                        submission.StoryID = (int)StoryID;
+                        submission.SequenceNumber = (int)SeqNumber;
+                        Helpers.SectionHelper.InsertSection(submission);
+
+                        IEnumerable<SectionsVM> s = Helpers.SectionHelper.ShowCurrentSections(submission.StoryID);
+                        return PartialView("_CurrentSections", s);
+                    }
+
+                    return View();
+                    //if insert failed, redirect to failed submission partial view
                 }
 
                 return View();
-                //if insert failed, redirect to failed submission partial view
             }
-
-            return View();
         }
 
         [HttpPost]
