@@ -26,7 +26,8 @@ namespace WriteIO.DAL
         }
     
         public virtual DbSet<Prompt> Prompts { get; set; }
-        public virtual DbSet<Section> Sections { get; set; }
         public virtual DbSet<Story> Stories { get; set; }
+        public virtual DbSet<Section> Sections { get; set; }
+        public virtual DbSet<SectionTransaction> SectionTransactions { get; set; }
     }
 }

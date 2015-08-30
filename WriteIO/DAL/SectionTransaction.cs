@@ -12,14 +12,11 @@ namespace WriteIO.DAL
     using System;
     using System.Collections.Generic;
     
-    public partial class Section
+    public partial class SectionTransaction
     {
+        public int TransID { get; set; }
         public int SectionID { get; set; }
-        public string Author { get; set; }
-        public System.DateTime WrittenDate { get; set; }
-        public int SequenceNumber { get; set; }
-        public int StoryID { get; set; }
-        public string SectionContent { get; set; }
-        public bool IsCommitted { get; set; }
+        public Nullable<int> Vote { get; set; }
+        public string Username { get; set; }
     }
 }

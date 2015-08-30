@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="WriteModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="WriteModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Prompt">
           <Key>
             <PropertyRef Name="PromptID" />
@@ -21,12 +21,19 @@
           <Property Name="SectionID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Author" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="WrittenDate" Type="datetime" Nullable="false" />
-          <Property Name="Upvotes" Type="int" Nullable="false" />
-          <Property Name="Downvotes" Type="int" Nullable="false" />
           <Property Name="SequenceNumber" Type="int" Nullable="false" />
           <Property Name="StoryID" Type="int" Nullable="false" />
           <Property Name="SectionContent" Type="varchar(max)" Nullable="false" />
           <Property Name="IsCommitted" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SectionTransactions">
+          <Key>
+            <PropertyRef Name="TransID" />
+          </Key>
+          <Property Name="TransID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SectionID" Type="int" Nullable="false" />
+          <Property Name="Vote" Type="int" />
+          <Property Name="Username" Type="varchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <EntityType Name="Story">
           <Key>
@@ -41,10 +48,10 @@
         <EntityContainer Name="WriteModelStoreContainer">
           <EntitySet Name="Prompt" EntityType="Self.Prompt" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Section" EntityType="Self.Section" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SectionTransactions" EntityType="Self.SectionTransactions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Story" EntityType="Self.Story" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="WriteModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -56,20 +63,6 @@
           <Property Name="PromptContent" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="Author" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="Category" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-        </EntityType>
-        <EntityType Name="Section">
-          <Key>
-            <PropertyRef Name="SectionID" />
-          </Key>
-          <Property Name="SectionID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Author" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="WrittenDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="Upvotes" Type="Int32" Nullable="false" />
-          <Property Name="Downvotes" Type="Int32" Nullable="false" />
-          <Property Name="SequenceNumber" Type="Int32" Nullable="false" />
-          <Property Name="StoryID" Type="Int32" Nullable="false" />
-          <Property Name="SectionContent" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="IsCommitted" Type="Boolean" Nullable="false" />
         </EntityType>
         <EntityType Name="Story">
           <Key>
@@ -83,9 +76,31 @@
         </EntityType>
         <EntityContainer Name="WriteEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Prompts" EntityType="Self.Prompt" />
-          <EntitySet Name="Sections" EntityType="Self.Section" />
           <EntitySet Name="Stories" EntityType="Self.Story" />
+          <EntitySet Name="Sections" EntityType="WriteModel.Section" />
+          <EntitySet Name="SectionTransactions" EntityType="WriteModel.SectionTransaction" />
         </EntityContainer>
+        <EntityType Name="Section">
+          <Key>
+            <PropertyRef Name="SectionID" />
+          </Key>
+          <Property Name="SectionID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Author" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="WrittenDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="SequenceNumber" Type="Int32" Nullable="false" />
+          <Property Name="StoryID" Type="Int32" Nullable="false" />
+          <Property Name="SectionContent" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="IsCommitted" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SectionTransaction">
+          <Key>
+            <PropertyRef Name="TransID" />
+          </Key>
+          <Property Name="TransID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SectionID" Type="Int32" Nullable="false" />
+          <Property Name="Vote" Type="Int32" />
+          <Property Name="Username" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -102,27 +117,35 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Sections">
-            <EntityTypeMapping TypeName="WriteModel.Section">
-              <MappingFragment StoreEntitySet="Section">
-                <ScalarProperty Name="SectionID" ColumnName="SectionID" />
-                <ScalarProperty Name="Author" ColumnName="Author" />
-                <ScalarProperty Name="WrittenDate" ColumnName="WrittenDate" />
-                <ScalarProperty Name="Upvotes" ColumnName="Upvotes" />
-                <ScalarProperty Name="Downvotes" ColumnName="Downvotes" />
-                <ScalarProperty Name="SequenceNumber" ColumnName="SequenceNumber" />
-                <ScalarProperty Name="StoryID" ColumnName="StoryID" />
-                <ScalarProperty Name="SectionContent" ColumnName="SectionContent" />
-                <ScalarProperty Name="IsCommitted" ColumnName="IsCommitted" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Stories">
             <EntityTypeMapping TypeName="WriteModel.Story">
               <MappingFragment StoreEntitySet="Story">
                 <ScalarProperty Name="StoryID" ColumnName="StoryID" />
                 <ScalarProperty Name="PromptID" ColumnName="PromptID" />
                 <ScalarProperty Name="SectionID" ColumnName="SectionID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Sections">
+            <EntityTypeMapping TypeName="WriteModel.Section">
+              <MappingFragment StoreEntitySet="Section">
+                <ScalarProperty Name="IsCommitted" ColumnName="IsCommitted" />
+                <ScalarProperty Name="SectionContent" ColumnName="SectionContent" />
+                <ScalarProperty Name="StoryID" ColumnName="StoryID" />
+                <ScalarProperty Name="SequenceNumber" ColumnName="SequenceNumber" />
+                <ScalarProperty Name="WrittenDate" ColumnName="WrittenDate" />
+                <ScalarProperty Name="Author" ColumnName="Author" />
+                <ScalarProperty Name="SectionID" ColumnName="SectionID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SectionTransactions">
+            <EntityTypeMapping TypeName="WriteModel.SectionTransaction">
+              <MappingFragment StoreEntitySet="SectionTransactions">
+                <ScalarProperty Name="Username" ColumnName="Username" />
+                <ScalarProperty Name="Vote" ColumnName="Vote" />
+                <ScalarProperty Name="SectionID" ColumnName="SectionID" />
+                <ScalarProperty Name="TransID" ColumnName="TransID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

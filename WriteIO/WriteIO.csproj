@@ -180,6 +180,9 @@
     <Compile Include="DAL\Section.cs">
       <DependentUpon>WriteEntity.tt</DependentUpon>
     </Compile>
+    <Compile Include="DAL\SectionTransaction.cs">
+      <DependentUpon>WriteEntity.tt</DependentUpon>
+    </Compile>
     <Compile Include="DAL\Story.cs">
       <DependentUpon>WriteEntity.tt</DependentUpon>
     </Compile>

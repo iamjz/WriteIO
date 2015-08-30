@@ -17,6 +17,7 @@ namespace WriteIO.Controllers
         {
             if (!User.Identity.IsAuthenticated)
             {
+                User.Identity.Name.ToString();
                 return View();
             }
             else
@@ -55,10 +56,11 @@ namespace WriteIO.Controllers
         [HttpPost]
         public ActionResult Upvote(int id)
         {
-
+           
             if (Session["StoryID"].ToString() != null
                 && Session["CurrentSeq"].ToString() != null
-                && Helpers.SectionHelper.UpvoteSection(id))
+                && User.Identity.IsAuthenticated
+                && Helpers.SectionHelper.VoteSection(id, User.Identity.Name.ToString(), true))
             {
                 var StoryID = Session["StoryID"];
                 int formattedID = 0;
@@ -79,7 +81,8 @@ namespace WriteIO.Controllers
         {
             if (Session["StoryID"].ToString() != null
                 && Session["CurrentSeq"].ToString() != null
-                && Helpers.SectionHelper.DownvoteSection(id))
+                && User.Identity.IsAuthenticated
+                && Helpers.SectionHelper.VoteSection(id, User.Identity.Name.ToString(), false))
             {
                 var StoryID = Session["StoryID"];
                 int formattedID = 0;

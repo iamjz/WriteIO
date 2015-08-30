@@ -4,6 +4,9 @@ using System.Linq;
 using System.Web;
 using WriteIO.Models;
 using WriteIO.DAL;
+using System.Web.Mvc;
+using System.Security.Principal;
+using WriteIO.Controllers;
 
 namespace WriteIO.Helpers
 {
@@ -25,8 +28,8 @@ namespace WriteIO.Helpers
                     //default properties upon submission:
                     dataModel.IsCommitted = false;
                     dataModel.WrittenDate = DateTime.Now;
-                    dataModel.Downvotes = 0;
-                    dataModel.Upvotes = 0;
+                    //dataModel.Downvotes = 0;
+                    //dataModel.Upvotes = 0;
                     dataModel.Author = "Frontend User";
 
                     try
@@ -70,8 +73,6 @@ namespace WriteIO.Helpers
                                      sto.SectionID,
                                      sec.Author,
                                      sec.WrittenDate,
-                                     sec.Upvotes,
-                                     sec.Downvotes,
                                      sec.SectionContent,
                                      sec.SequenceNumber,
                                      sec.IsCommitted
@@ -113,8 +114,6 @@ namespace WriteIO.Helpers
                                      sto.SectionID,
                                      sec.Author,
                                      sec.WrittenDate,
-                                     sec.Upvotes,
-                                     sec.Downvotes,
                                      sec.SectionContent,
                                      sec.SequenceNumber,
                                      sec.IsCommitted
@@ -148,54 +147,66 @@ namespace WriteIO.Helpers
             return false;
         }
 
-        public static bool UpvoteSection(int sectionID)
+        public static bool VoteSection(int sectionID, string username, bool votetype)
         {
-            SectionsVM section = getSectionFromId(sectionID);
-
-            if (IsValidStory(section.StoryID)
-                && GetCurrentSeq(section.StoryID) == section.SequenceNumber)
+            if (String.IsNullOrWhiteSpace(username))
             {
-                try
-                {
-                    using (var db = new WriteEntities())
-                    {
-                        var s = db.Sections.Find(sectionID);
-
-                        if (s != null)
-                        {
-                            s.Upvotes += 1;
-                            db.SaveChanges();
-                            return true;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return false;
-                }
+                return false;
             }
 
-            return false;
-        }
-
-        public static bool DownvoteSection(int sectionID)
-        {
             SectionsVM section = getSectionFromId(sectionID);
 
-            if (IsValidStory(section.StoryID)
+            if (section != null
+                && IsValidStory(section.StoryID)
                 && GetCurrentSeq(section.StoryID) == section.SequenceNumber)
             {
                 try
                 {
                     using (var db = new WriteEntities())
                     {
-                        var s = db.Sections.Find(sectionID);
 
-                        if (s != null)
+                        List<SectionTransaction> t = db.SectionTransactions.Where(tr => tr.Username == username
+                                    && tr.SectionID == section.SectionID).ToList();
+
+                        if (t != null && t.Count == 1)
                         {
-                            s.Downvotes += 1;
+                            if (votetype == true)
+                            {
+                                t.FirstOrDefault().Vote = 1;
+                            }
+                            else
+                            {
+                                t.FirstOrDefault().Vote = -1;
+                            }
+                            
                             db.SaveChanges();
+
                             return true;
+                        }
+                        else if (t != null && t.Count == 0)
+                        {
+                            SectionTransaction firstTrans = new SectionTransaction();
+
+                            if (votetype == true)
+                            {
+                                firstTrans.Vote = 1;
+                            }
+                            else
+                            {
+                                firstTrans.Vote = -1;
+                            }
+
+                            firstTrans.Username = username;
+                            firstTrans.SectionID = sectionID;
+
+                            db.SectionTransactions.Add(firstTrans);
+                            db.SaveChanges();
+
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
                         }
                     }
                 }
@@ -223,9 +234,9 @@ namespace WriteIO.Helpers
                         sectionObj.SectionID = section.SectionID;
                         sectionObj.SectionContent = section.SectionContent;
                         sectionObj.SequenceNumber = section.SequenceNumber;
-                        sectionObj.Upvotes = section.Upvotes;
+                        //sectionObj.Upvotes = section.Upvotes;
                         sectionObj.Author = section.Author;
-                        sectionObj.Downvotes = section.Downvotes;
+                        //sectionObj.Downvotes = section.Downvotes;
                         sectionObj.WrittenDate = section.WrittenDate;
                         sectionObj.StoryID = section.StoryID;
 
@@ -264,8 +275,6 @@ namespace WriteIO.Helpers
                                                    sec.SectionID,
                                                    sec.Author,
                                                    sec.WrittenDate,
-                                                   sec.Upvotes,
-                                                   sec.Downvotes,
                                                    sec.SectionContent,
                                                    sec.SequenceNumber,
                                                    sec.IsCommitted
@@ -277,12 +286,10 @@ namespace WriteIO.Helpers
                             SectionID = cs.SectionID,
                             Author = cs.Author,
                             WrittenDate = cs.WrittenDate,
-                            Upvotes = cs.Upvotes,
-                            Downvotes = cs.Downvotes,
                             SequenceNumber = cs.SequenceNumber,
                             StoryID = cs.StoryID,
                             SectionContent = cs.SectionContent,
-                            SortOrder = (cs.Upvotes - cs.Downvotes)
+                            SortOrder = 1
                         }).ToList();
 
                         storyResults = storyResults.OrderByDescending(s => s.SortOrder);

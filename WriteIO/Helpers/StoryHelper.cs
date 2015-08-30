@@ -31,8 +31,6 @@ namespace WriteIO.Helpers
                                           sto.SectionID,
                                           sec.Author,
                                           sec.WrittenDate,
-                                          sec.Upvotes,
-                                          sec.Downvotes,
                                           sec.SectionContent,
                                           sec.IsCommitted
                                       });
@@ -45,8 +43,7 @@ namespace WriteIO.Helpers
                         SectionID = fs.SectionID,
                         Author = fs.Author,
                         WrittenDate = fs.WrittenDate,
-                        Upvotes = fs.Upvotes,
-                        Downvotes = fs.Downvotes,
+         
                         SectionContent = fs.SectionContent,
                         IsCommitted = fs.IsCommitted
                     }).ToList();
