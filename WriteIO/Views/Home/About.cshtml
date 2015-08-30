@@ -1,18 +1,10 @@
 ﻿
 @section body {
     
-    
-- User Authentication and integration. How will the app behave with user auth? A user can only upvote/downvote once. 
-    - Create new table to hold transactional data. Only hold SectionID, Upvote/Downvote, Username. 
-    - This allows me to check whether the user has upvoted/downvoted already. 
-    - I don't need to hold datetime. And the user can change his/her mind on the votes.
-    - This will get joined with the Sections table when I render all the submitted posts. 
-    - Create new method to build submissions rendering. This should prob be done on a method. 
-    - Look into parameterized stored procedures. 
-
 - Add Prompt functionality (separate from the story). Users can reference existing prompts to create a new storyline.
 - Create Story from prompt. 
 - Delete Section.
 - Revise Section.
+- Update Section.
 
 }

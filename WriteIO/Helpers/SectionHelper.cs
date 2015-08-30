@@ -219,6 +219,20 @@ namespace WriteIO.Helpers
             return false;
         }
 
+        public static int calculateTotUpvotes(int sectionId)
+        {
+            int totalVotes = 0;
+
+            using (var db = new WriteEntities())
+            {
+                int? result = db.SectionTransactions.Where(t => t.SectionID == sectionId).Sum(r => r.Vote);
+
+                totalVotes = result ?? 0;
+            }
+
+            return totalVotes;
+        }
+
         public static SectionsVM getSectionFromId(int id)
         {
             try
@@ -234,9 +248,8 @@ namespace WriteIO.Helpers
                         sectionObj.SectionID = section.SectionID;
                         sectionObj.SectionContent = section.SectionContent;
                         sectionObj.SequenceNumber = section.SequenceNumber;
-                        //sectionObj.Upvotes = section.Upvotes;
                         sectionObj.Author = section.Author;
-                        //sectionObj.Downvotes = section.Downvotes;
+                        sectionObj.Votes = calculateTotUpvotes(section.SectionID);
                         sectionObj.WrittenDate = section.WrittenDate;
                         sectionObj.StoryID = section.StoryID;
 
@@ -289,10 +302,10 @@ namespace WriteIO.Helpers
                             SequenceNumber = cs.SequenceNumber,
                             StoryID = cs.StoryID,
                             SectionContent = cs.SectionContent,
-                            SortOrder = 1
+                            Votes = calculateTotUpvotes(cs.SectionID)
                         }).ToList();
 
-                        storyResults = storyResults.OrderByDescending(s => s.SortOrder);
+                        storyResults = storyResults.OrderByDescending(s => s.Votes);
                     }
                 }
             }

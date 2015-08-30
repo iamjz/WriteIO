@@ -14,9 +14,7 @@ namespace WriteIO.Models
 
         public DateTime WrittenDate { get; set; }
 
-        public int Upvotes { get; set; }
-
-        public int Downvotes { get; set; }
+        public int Votes { get; set; }
 
         public int SequenceNumber { get; set; }
 
