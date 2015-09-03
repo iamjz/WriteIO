@@ -1,0 +1,72 @@
+﻿@model IEnumerable<WriteIO.Models.SectionsVM>
+
+<table class="table" id="sectioninfo">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.SectionID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Author)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.WrittenDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Votes)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SequenceNumber)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.StoryID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SectionContent)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.SectionID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Author)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.WrittenDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Votes)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SequenceNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StoryID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SectionContent)
+            </td>
+            <td>
+                @Ajax.ActionLink("Upvote", "Upvote", "Section", new { id = item.SectionID },
+           new AjaxOptions
+           {
+               HttpMethod = "POST",
+               UpdateTargetId = "sectioninfo"
+           })
+            </td>
+            <td>
+                @Ajax.ActionLink("Downvote", "Downvote", "Section", new { id = item.SectionID },
+           new AjaxOptions
+           {
+               HttpMethod = "POST",
+               UpdateTargetId = "sectioninfo"
+           })
+            </td>
+        </tr>
+    }
+
+</table>
